@@ -6,6 +6,9 @@ DATAMINE_PATH = "/home/thisconnect/War-Thunder-Datamine"
 
 @dataclass
 class Missile:
+    CxK: float
+    caliber: float
+    wingAreaMult: float
     mass: float
     massEnd: float
     massEnd1: float
@@ -31,9 +34,18 @@ class Missile:
             self._load_param(field.name)
 
     def _open_file(self, filename) -> str:
-        path = f"{DATAMINE_PATH}/aces.vromfs.bin_u/gamedata/weapons/rocketguns/{filename}.blkx"
-        with open(path, "r") as f:
-            string = f.read()
+        string = None
+        folder = "rocketguns"
+        try:
+            with open(f"{DATAMINE_PATH}/aces.vromfs.bin_u/gamedata/weapons/{folder}/{filename}.blkx", "r") as f:
+                string = f.read()
+        except Exception:
+            print(f"could not find {filename} in {folder}")
+        if not string:
+            folder = "bombguns"
+            with open(f"{DATAMINE_PATH}/aces.vromfs.bin_u/gamedata/weapons/{folder}/{filename}.blkx", "r") as f:
+                string = f.read()
+
         return string
 
     def __init__(self, filename):
@@ -42,9 +54,14 @@ class Missile:
         self._load_all()
 
     def missile_calculate(self) -> list:
+        if self.caliber:
+            self.caliber = 10 * self.caliber
+
         impulse1, impulse2, speed_after_boost1, speed_after_boost2, deltav1, deltav2, deltav_total = 0, 0, 0, 0, 0, 0, 0
+        # impulse = time * force
         impulse1 = self.timeFire * self.force
-        speed_after_boost1 = impulse1/((self.mass + self.massEnd)/2) + self.startSpeed
+        # speed_after_boost
+        speed_after_boost1 = (impulse1/((self.mass + self.massEnd)/2)) + self.startSpeed
         deltav1 = speed_after_boost1 - self.startSpeed
 
         if self.massEnd1:
@@ -64,15 +81,18 @@ class Missile:
             self.timeFire,
             self.massEnd,
             impulse1,
-            speed_after_boost1,
+            round(speed_after_boost1, 2),
             self.force1,
             self.timeFire1,
             self.massEnd1,
             impulse2,
-            speed_after_boost2,
-            deltav1,
-            deltav2,
-            deltav_total,
+            round(speed_after_boost2, 2),
+            round(deltav1, 2),
+            round(deltav2, 2),
+            round(deltav_total, 2),
+            self.CxK,
+            self.caliber,
+            self.wingAreaMult,
         ]
 
     @staticmethod
@@ -94,6 +114,9 @@ class Missile:
             "ΔV stage 1",
             "ΔV stage 2",
             "ΔV total",
+            "CxK",
+            "Caliber",
+            "WingAreaMult"
         ]
 
     @staticmethod
@@ -115,4 +138,7 @@ class Missile:
             "m/s",
             "m/s",
             "m/s",
+            "N/A",
+            "mm",
+            "N/A",
         ]
