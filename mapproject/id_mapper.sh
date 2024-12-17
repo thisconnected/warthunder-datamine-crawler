@@ -11,20 +11,21 @@ curl -s https://wiki.warthunder.com/ships?v=l 2>/dev/null > shiplist.txt
 curl -s https://wiki.warthunder.com/boats?v=l 2>/dev/null > boatlist.txt
 
 
-for filename in FILENAMES
+FILENAMES=("planelist.txt" "helilist.txt" "groundlist.txt" "shiplist.txt" "boatlist.txt")
+
+for filename in ${FILENAMES[@]}
 do
+    echo "0,$filename"
+    unit_list=`awk -F"'"  '/WT_UnitList/ {print $2}' $filename`
+    # combined_list=`echo $unit_list | jq '"\(.[].[0]),\(.[].[1])"'`
+    # fullname_list=`echo $unit_list | jq '.[].[1]'`
+    name_list=`echo $unit_list | jq -r '.[].[0]'`
 
-unit_list=`awk -F"'"  '/WT_UnitList/ {print $2}' $filename`
-# combined_list=`echo $unit_list | jq '"\(.[].[0]),\(.[].[1])"'`
-
-
-fullname_list=`echo $unit_list | jq '.[].[1]'`
-name_list=`echo $unit_list | jq -r '.[].[0]'`
-
-for element in $name_list
-do
-    # element_fullname=`echo $element | awk -F',' '{print $2}'`
-    element_id=`curl -s https://wiki.warthunder.com/unit/$element 2>/dev/null | awk -F'"' '/data-feed-unit-id/ {print $8}'`
-    echo "$element_id,$element"
-done
+    for element in $name_list
+    do
+	# element_fullname=`echo $element | awk -F',' '{print $2}'`
+	element_id=`curl -s https://wiki.warthunder.com/unit/$element 2>errors2.txt | awk -F'"' '/data-feed-unit-id/ {print $8}'`
+	echo "$element_id,$element"
+	sleep 1
+    done
 done
