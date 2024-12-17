@@ -86,7 +86,11 @@ transposed = list(map(list, zip(*missile_list)))
 #         print(missile)
 #         writer.writerow(missile)
 
-with open("missiles.csv", "w") as csvfile:
+
+with open("/home/thisconnect/War-Thunder-Datamine/aces.vromfs.bin_u/version", "r") as f:
+    version_string = f.read()
+
+with open(f"{version_string}.csv", "w") as csvfile:
     writer = csv.writer(csvfile, delimiter=";")
     for row in transposed:
         writer.writerow(row)

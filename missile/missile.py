@@ -43,6 +43,13 @@ class Missile:
             print(f"could not find {filename} in {folder}")
         if not string:
             folder = "bombguns"
+            try:
+                with open(f"{DATAMINE_PATH}/aces.vromfs.bin_u/gamedata/weapons/{folder}/{filename}.blkx", "r") as f:
+                    string = f.read()
+            except Exception:
+                print(f"could not find {filename} in {folder}")
+        if not string:
+            folder = "groundmodels_weapons"
             with open(f"{DATAMINE_PATH}/aces.vromfs.bin_u/gamedata/weapons/{folder}/{filename}.blkx", "r") as f:
                 string = f.read()
 
