@@ -20,6 +20,7 @@ class Missile:
     force: float
     force1: float
     startSpeed: float
+    finsAoaHor: float
 
     def _extract(self, string) -> float:
         return float(string.split(':')[1])
@@ -97,6 +98,15 @@ class Missile:
 
         deltav_total = deltav1 + deltav2
 
+        try:
+            if self.massEnd1:
+                wet_mass_ratio = (self.mass-self.massEnd1)/self.mass
+            else:
+                wet_mass_ratio = (self.mass-self.massEnd)/self.mass
+        except ZeroDivisionError:
+            print(f"mass={self.mass}, end1={self.massEnd1}, end={self.massEnd}")
+            wet_mass_ratio = 0
+        wet_mass_ratio = wet_mass_ratio * 100
         return [
             self.name,
             self.startSpeed,
@@ -117,6 +127,8 @@ class Missile:
             self.CxK,
             self.caliber,
             self.wingAreaMult,
+            self.finsAoaHor,
+            round(wet_mass_ratio, 2),
         ]
 
     @staticmethod
@@ -140,7 +152,9 @@ class Missile:
             "ΔV total",
             "CxK",
             "Caliber",
-            "WingAreaMult"
+            "WingAreaMult",
+            "Fin area",
+            "Wet Mass Ratio"
         ]
 
     @staticmethod
@@ -165,4 +179,6 @@ class Missile:
             "N/A",
             "mm",
             "N/A",
+            "N/A",
+            "%"
         ]
