@@ -1,7 +1,10 @@
 from dataclasses import dataclass, fields
 import re
 
+# DATAMINE_PATH = "/data/WarThunder-dev"
 DATAMINE_PATH = "/home/thisconnect/War-Thunder-Datamine"
+FILE_EXTENSION = "blkx"
+# FILE_EXTENSION = "blk"
 
 
 @dataclass
@@ -37,27 +40,41 @@ class Missile:
         string = None
         folder = "rocketguns"
         try:
-            with open(f"{DATAMINE_PATH}/aces.vromfs.bin_u/gamedata/weapons/{folder}/{filename}.blkx", "r") as f:
+            with open(f"{DATAMINE_PATH}/aces.vromfs.bin_u/gamedata/weapons/{folder}/{filename}.{FILE_EXTENSION}", "r") as f:
                 string = f.read()
         except Exception:
             print(f"could not find {filename} in {folder}")
         if not string:
             folder = "bombguns"
             try:
-                with open(f"{DATAMINE_PATH}/aces.vromfs.bin_u/gamedata/weapons/{folder}/{filename}.blkx", "r") as f:
+                with open(f"{DATAMINE_PATH}/aces.vromfs.bin_u/gamedata/weapons/{folder}/{filename}.{FILE_EXTENSION}", "r") as f:
                     string = f.read()
             except Exception:
                 print(f"could not find {filename} in {folder}")
         if not string:
             folder = "groundmodels_weapons"
-            with open(f"{DATAMINE_PATH}/aces.vromfs.bin_u/gamedata/weapons/{folder}/{filename}.blkx", "r") as f:
-                string = f.read()
+            try:
+                with open(f"{DATAMINE_PATH}/aces.vromfs.bin_u/gamedata/weapons/{folder}/{filename}.{FILE_EXTENSION}", "r") as f:
+                    string = f.read()
+            except Exception:
+                print(f"could not find {filename} in {folder}")
+        if not string:
+            folder = "fakeguns"
+            try:
+                with open(f"{DATAMINE_PATH}/aces.vromfs.bin_u/gamedata/weapons/{folder}/{filename}.{FILE_EXTENSION}", "r") as f:
+                    string = f.read()
+            except Exception:
+                print(f"could not find {filename} in {folder}")
+                print(f"{filename} doesnt exist")
+                return None
 
         return string
 
     def __init__(self, filename):
         self.name = filename
         self.source = self._open_file(filename)
+        if self.source is None:
+            return
         self._load_all()
 
     def missile_calculate(self) -> list:
